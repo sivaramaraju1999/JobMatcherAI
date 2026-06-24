@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
 try:
+    # pyrefly: ignore [missing-import]
     from apify_client import ApifyClient
     APIFY_AVAILABLE = True
 except ImportError:
@@ -68,7 +69,11 @@ class ApifyLinkedInAdapter(JobScraperAdapter):
             "urls": [search_url],
             "scrapeCompany": True,
             "count": 20,
-            "splitByLocation": False
+            "splitByLocation": False,
+            "proxyConfiguration": {
+                "useApifyProxy": True,
+                "apifyProxyGroups": ["RESIDENTIAL"]
+            }
         }
         
         try:
@@ -110,7 +115,10 @@ class ApifyNaukriAdapter(JobScraperAdapter):
         run_input = {
             "keyword": query,
             "cities": location,
-            "maxJobs": 20
+            "maxJobs": 20,
+            "proxyConfiguration": {
+                "useApifyProxy": True
+            }
         }
         
         try:
@@ -153,7 +161,10 @@ class ApifyIndeedAdapter(JobScraperAdapter):
             "query": query,
             "location": location,
             "country": "us",
-            "maxRows": 20
+            "maxRows": 20,
+            "proxyConfiguration": {
+                "useApifyProxy": True
+            }
         }
         
         try:
@@ -195,7 +206,10 @@ class ApifyWellfoundAdapter(JobScraperAdapter):
         run_input = {
             "query": query,
             "location": location,
-            "results_wanted": 20
+            "results_wanted": 20,
+            "proxyConfiguration": {
+                "useApifyProxy": True
+            }
         }
         
         try:
@@ -237,7 +251,10 @@ class ApifyGlassdoorAdapter(JobScraperAdapter):
         run_input = {
             "keyword": query,
             "location": location,
-            "maxItems": 20
+            "maxItems": 20,
+            "proxyConfiguration": {
+                "useApifyProxy": True
+            }
         }
         
         try:
