@@ -40,28 +40,12 @@ class JobMatcherAI:
         # Initialize job scrapers
         adapters = []
 
-        apify_token = os.getenv('APIFY_API_TOKEN')
-        if apify_token:
-            try:
-                from scrapers import (
-                    ApifyLinkedInAdapter, 
-                    ApifyNaukriAdapter, 
-                    ApifyIndeedAdapter,
-                    ApifyWellfoundAdapter,
-                    ApifyGlassdoorAdapter,
-                    ApifyYCAdapter
-                )
-                adapters.append(ApifyLinkedInAdapter(apify_token))
-                adapters.append(ApifyNaukriAdapter(apify_token))
-                adapters.append(ApifyIndeedAdapter(apify_token))
-                adapters.append(ApifyWellfoundAdapter(apify_token))
-                adapters.append(ApifyGlassdoorAdapter(apify_token))
-                adapters.append(ApifyYCAdapter(apify_token))
-                logger.info("Initialized Apify actors for LinkedIn, Naukri, Indeed, Wellfound, Glassdoor, and YCombinator")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Apify adapters: {e}")
-        else:
-            logger.warning("APIFY_API_TOKEN not found in environment. Please add it to your .env file or GitHub Secrets. No scraping will occur.")
+        try:
+            from scrapers import JobSpyAdapter
+            adapters.append(JobSpyAdapter())
+            logger.info("Initialized JobSpyAdapter for LinkedIn, Naukri, Indeed, Glassdoor")
+        except Exception as e:
+            logger.warning(f"Failed to initialize JobSpyAdapter: {e}")
 
         # Create the orchestrator with our adapters
         self.scraper = JobScraperOrchestrator(adapters)
