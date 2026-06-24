@@ -180,65 +180,6 @@ Respond in JSON format ONLY:
             logger.error(f"Match scoring via LLM failed: {e}. Falling back.")
             return self._fallback_calc_score_basic(resume_text, job_description)
 
-    def optimize_resume(self, base_resume: str, job_description: str, target_score: float = 95.0) -> MatchResult:
-        """Optimize resume to match job description using LLM"""
-        if not self.groq_api_key and not self.nim_api_key:
-            return self._fallback_optimize_resume(base_resume, job_description, target_score)
-
-        score, missing, matching = self.calculate_match_score(base_resume, job_description)
-
-        if score >= target_score:
-            return MatchResult(
-                match_score=score,
-                missing_keywords=missing,
-                matching_keywords=matching,
-                suggestions=["Resume already matches well"],
-                optimized_resume_text=base_resume
-            )
-
-        prompt = f"""You are an expert resume writer and ATS optimizer.
-Given the base resume and job description below, produce an optimized version of the resume that:
-1. Naturally incorporates the missing keywords/skills where they align with the candidate's actual experience
-2. Does NOT fabricate experience, skills, or qualifications that aren't present in the original resume
-3. Maintains the original tone, structure, and truthfulness
-4. Focuses on integrating missing terms into the skills section, professional summary, and relevant bullet points
-5. Aims to achieve a match score of at least {target_score}% when compared to the job description
-
-Return ONLY the optimized resume text, with no explanations or extra commentary.
-
-Base Resume:
-{base_resume}
-
-Job Description:
-{job_description}
-
-Missing Keywords to incorporate: {', '.join(missing)}
-
-Optimized Resume:"""
-
-        try:
-            optimized_text = self._call_llm([{"role": "user", "content": prompt}], temperature=0.2, max_tokens=1500)
-            if len(optimized_text.strip()) < 50:
-                raise ValueError("Generated resume too short")
-
-            opt_score, opt_missing, opt_matching = self.calculate_match_score(optimized_text, job_description)
-
-            suggestions = [
-                f"Integrated {len(missing)} missing keywords",
-                f"Match score improved from {score:.1f}% to {opt_score:.1f}%",
-                "Review to ensure all additions are truthful to your experience"
-            ]
-
-            return MatchResult(
-                match_score=opt_score,
-                missing_keywords=opt_missing,
-                matching_keywords=opt_matching,
-                suggestions=suggestions,
-                optimized_resume_text=optimized_text
-            )
-        except Exception as e:
-            logger.error(f"Resume optimization via LLM failed: {e}. Falling back.")
-            return self._fallback_optimize_resume(base_resume, job_description, target_score)
 
     def _fallback_extract_keywords(self, text: str) -> List[str]:
         words = re.findall(r'\b[a-zA-Z][a-zA-Z0-9+#.-]*\b', text.lower())
@@ -255,26 +196,6 @@ Optimized Resume:"""
         score = (len(matching) / len(job_kw)) * 100 if job_kw else 0.0
         return min(max(score, 0), 100), missing, matching
 
-    def _fallback_optimize_resume(self, base_resume: str, job_description: str, target_score: float) -> MatchResult:
-        score, missing, matching = self._fallback_calc_score_basic(base_resume, job_description)
-        if score >= target_score:
-            return MatchResult(score, missing, matching, ["Resume already matches well"], base_resume)
-        
-        lines = base_resume.split('\n')
-        optimized_lines = []
-        skills_added = False
-        for line in lines:
-            optimized_lines.append(line)
-            if 'skills' in line.lower() and not skills_added:
-                if missing:
-                    optimized_lines.append(f"Skills: {', '.join(missing[:8])}")
-                    skills_added = True
-        if not skills_added and missing:
-            optimized_lines.append(f"\nKey Skills: {', '.join(missing[:8])}")
-            
-        optimized_text = '\n'.join(optimized_lines)
-        opt_score, _, _ = self._fallback_calc_score_basic(optimized_text, job_description)
-        return MatchResult(opt_score, [], [], ["Added missing keywords to skills section (fallback)"], optimized_text)
 
 
 class ResumeMatcher:
@@ -289,8 +210,7 @@ class ResumeMatcher:
     def calculate_match_score(self, resume_text: str, job_description: str) -> Tuple[float, List[str], List[str]]:
         return self.llm_client.calculate_match_score(resume_text, job_description)
 
-    def optimize_resume(self, base_resume: str, job_description: str, target_score: float = 95.0) -> MatchResult:
-        return self.llm_client.optimize_resume(base_resume, job_description, target_score)
+
 
 
 class ResumeStorage:

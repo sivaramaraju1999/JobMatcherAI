@@ -1,19 +1,22 @@
 """
-Job scraping adapters for various platforms.
-Supports Amazon Jobs, Microsoft Careers, Workday, Greenhouse, Lever.
+Job scraping adapters using Apify actors.
+Supports LinkedIn, Naukri, and Indeed.
 """
 
 import json
 import time
 import logging
 import re
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
-from urllib.parse import urljoin, quote_plus
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+
+try:
+    from apify_client import ApifyClient
+    APIFY_AVAILABLE = True
+except ImportError:
+    APIFY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -33,271 +36,141 @@ class JobListing:
 class JobScraperAdapter(ABC):
     """Abstract base class for job scrapers"""
 
-    def __init__(self, company_name: str, base_url: str = ""):
-        self.company_name = company_name
-        self.base_url = base_url
-        self.session = self._create_session()
+    def __init__(self, platform_name: str):
+        self.company_name = platform_name # legacy name for compatibility
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-
-    def _create_session(self) -> requests.Session:
-        """Create a requests session with retry strategy"""
-        session = requests.Session()
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
-        return session
-
-    def normalize_location(self, location: str) -> str:
-        """Normalize location string for comparison"""
-        if not location:
-            return ""
-        # Convert to lowercase, strip, and normalize common variations
-        location = location.lower().strip()
-        # Handle common variations
-        location = re.sub(r'[\s\-_]+', ' ', location)  # Replace spaces/hyphens/underscores with space
-        location = re.sub(r'[^\w\s]', '', location)    # Remove punctuation
-        return location
-
-    def normalize_salary(self, salary_str: str) -> str:
-        """Normalize salary string"""
-        if not salary_str:
-            return ""
-        # Remove extra whitespace
-        salary_str = re.sub(r'\s+', ' ', salary_str.strip())
-        return salary_str
 
     @abstractmethod
     def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
         """Fetch jobs based on keywords and location"""
         pass
 
-class AmazonJobsAdapter(JobScraperAdapter):
-    """Adapter for Amazon Jobs"""
+class ApifyLinkedInAdapter(JobScraperAdapter):
+    """Adapter for curious-coder/linkedin-jobs-scraper"""
 
-    def __init__(self):
-        super().__init__("Amazon", "https://www.amazon.jobs")
+    def __init__(self, token: str):
+        super().__init__("LinkedIn (Apify)")
+        self.client = ApifyClient(token)
 
     def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
         jobs = []
+        if not APIFY_AVAILABLE:
+            self.logger.error("Apify client not installed.")
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "queries": f"{query} in {location}",
+            "limit": 20,
+            "publishedAt": "any",
+            "searchType": "jobs"
+        }
+        
         try:
-            # Build search query
-            query = " ".join(keywords[:3])  # Limit keywords
-            url = f"https://www.amazon.jobs/en/search.json"
-            params = {
-                "offset": 0,
-                "result_limit": 50,
-                "sort": "recent",
-                "keyword": query,
-                "location": location,
-                "distance": 25
-            }
-
-            response = self.session.get(url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
-            for job in data.get("jobs", []):
+            self.logger.info(f"Starting LinkedIn Actor for {query} in {location}")
+            run = self.client.actor("curious-coder/linkedin-jobs-scraper").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
                 job_listing = JobListing(
-                    title=job.get("title", ""),
-                    company="Amazon",
-                    description=job.get("description", ""),
-                    application_url=job.get("job_path", ""),
-                    location=job.get("location", ""),
-                    salary_range=job.get("compensation", ""),
-                    source="Amazon Jobs",
-                    posted_date=job.get("posted_date"),
-                    raw_data=job
+                    title=item.get("title", ""),
+                    company=item.get("companyName", ""),
+                    description=item.get("description", ""),
+                    application_url=item.get("url", ""),
+                    location=item.get("location", ""),
+                    salary_range="",
+                    source="LinkedIn",
+                    posted_date=item.get("postedAt"),
+                    raw_data=item
                 )
                 jobs.append(job_listing)
-
         except Exception as e:
-            self.logger.error(f"Error fetching Amazon jobs: {e}")
+            self.logger.error(f"Error fetching LinkedIn jobs: {e}")
 
         return jobs
 
-class MicrosoftCareersAdapter(JobScraperAdapter):
-    """Adapter for Microsoft Careers"""
+class ApifyNaukriAdapter(JobScraperAdapter):
+    """Adapter for themineworks/naukri-jobs"""
 
-    def __init__(self):
-        super().__init__("Microsoft", "https://careers.microsoft.com")
+    def __init__(self, token: str):
+        super().__init__("Naukri (Apify)")
+        self.client = ApifyClient(token)
 
     def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
         jobs = []
+        if not APIFY_AVAILABLE:
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "search": query,
+            "location": location,
+            "maxItems": 20
+        }
+        
         try:
-            query = " ".join(keywords[:3])
-            url = "https://careers.microsoft.com/v1.0/search"
-            params = {
-                "appsOpen": "false",
-                "country": "us",  # TODO: make configurable
-                "skip": 0,
-                "take": 25,
-                "keywords": query,
-                "location": location
-            }
-
-            response = self.session.get(url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
-            for job in data.get("operationResult", {}).get("result", {}).get("jobs", []):
+            self.logger.info(f"Starting Naukri Actor for {query} in {location}")
+            run = self.client.actor("themineworks/naukri-jobs").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
                 job_listing = JobListing(
-                    title=job.get("title", ""),
-                    company="Microsoft",
-                    description=job.get("description", ""),
-                    application_url=job.get("applyUrl", ""),
-                    location=job.get("city", ""),
-                    salary_range="",  # Microsoft doesn't usually provide salary in API
-                    source="Microsoft Careers",
-                    posted_date=job.get("postedDate"),
-                    raw_data=job
+                    title=item.get("title", ""),
+                    company=item.get("companyName", ""),
+                    description=item.get("jobDescription", ""),
+                    application_url=item.get("jobUrl", ""),
+                    location=item.get("locations", ""),
+                    salary_range=item.get("salary", ""),
+                    source="Naukri",
+                    posted_date=item.get("postedDate"),
+                    raw_data=item
                 )
                 jobs.append(job_listing)
-
         except Exception as e:
-            self.logger.error(f"Error fetching Microsoft jobs: {e}")
+            self.logger.error(f"Error fetching Naukri jobs: {e}")
 
         return jobs
 
-class WorkdayAdapter(JobScraperAdapter):
-    """Adapter for Workday-based career sites"""
+class ApifyIndeedAdapter(JobScraperAdapter):
+    """Adapter for apify/indeed-scraper"""
 
-    def __init__(self, company_name: str, wd_host: str, wd_site: str, wd_company: str):
-        super().__init__(company_name)
-        # Construct the API endpoint for Workday
-        self.api_url = f"https://{wd_host}/wd/x/{wd_company}/{wd_site}/apply/json"
-        self.wd_company = wd_company
-        self.wd_site = wd_site
+    def __init__(self, token: str):
+        super().__init__("Indeed (Apify)")
+        self.client = ApifyClient(token)
 
     def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
         jobs = []
+        if not APIFY_AVAILABLE:
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "position": query,
+            "location": location,
+            "country": "US",
+            "maxItems": 20
+        }
+        
         try:
-            query = " ".join(keywords[:3])
-            # Workday API format may vary; this is a common pattern
-            payload = {
-                "appliedFields": [],
-                "searchText": query,
-                "locationHierarchy": [],
-                "limit": 20,
-                "offset": 0
-            }
-
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-
-            response = self.session.post(self.api_url, json=payload, headers=headers, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
-            # Parse response based on Workday schema
-            for job_group in data.get("body", {}).get("children", []):
-                for job_item in job_group.get("children", []):
-                    if "title" in job_item:
-                        job_listing = JobListing(
-                            title=job_item.get("title", ""),
-                            company=self.company_name,
-                            description=job_item.get("jobDescription", ""),
-                            application_url=job_item.get("externalPath", ""),
-                            location=job_item.get("locationsText", ""),
-                            salary_range="",
-                            source=f"Workday ({self.company_name})",
-                            posted_date=job_item.postedOn if "postedOn" in job_item else None,
-                            raw_data=job_item
-                        )
-                        jobs.append(job_listing)
-
-        except Exception as e:
-            self.logger.error(f"Error fetching Workday jobs for {self.company_name}: {e}")
-
-        return jobs
-
-class GreenhouseAdapter(JobScraperAdapter):
-    """Adapter for Greenhouse"""
-
-    def __init__(self, company_name: str, greenhouse_token: str):
-        super().__init__(company_name)
-        self.greenhouse_token = greenhouse_token
-        self.api_url = f"https://boards-api.greenhouse.io/v1/boards/{greenhouse_token}/jobs"
-
-    def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
-        jobs = []
-        try:
-            params = {
-                "content": "true"
-            }
-
-            response = self.session.get(self.api_url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
-            for job in data.get("jobs", []):
-                # Filter by location if specified
-                job_location = job.get("location", {}).get("name", "")
-                if location.lower() != "any" and location.lower() not in job_location.lower():
-                    continue
-
+            self.logger.info(f"Starting Indeed Actor for {query} in {location}")
+            run = self.client.actor("apify/indeed-scraper").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
                 job_listing = JobListing(
-                    title=job.get("title", ""),
-                    company=self.company_name,
-                    description=job.get("content", ""),
-                    application_url=job.get("absolute_url", ""),
-                    location=job_location,
-                    salary_range="",  # Greenhouse doesn't always provide salary
-                    source=f"Greenhouse ({self.company_name})",
-                    posted_date=job.get("updated_at"),
-                    raw_data=job
+                    title=item.get("positionName", ""),
+                    company=item.get("company", ""),
+                    description=item.get("description", ""),
+                    application_url=item.get("url", ""),
+                    location=item.get("location", ""),
+                    salary_range=item.get("salary", ""),
+                    source="Indeed",
+                    posted_date=item.get("postedAt"),
+                    raw_data=item
                 )
                 jobs.append(job_listing)
-
         except Exception as e:
-            self.logger.error(f"Error fetching Greenhouse jobs for {self.company_name}: {e}")
-
-        return jobs
-
-class LeverAdapter(JobScraperAdapter):
-    """Adapter for Lever"""
-
-    def __init__(self, company_name: str):
-        super().__init__(company_name)
-        self.api_url = f"https://api.lever.co/v0/postings/{company_name.lower()}?mode=json"
-
-    def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
-        jobs = []
-        try:
-            response = self.session.get(self.api_url, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
-            for job in data:
-                # Filter by location if specified
-                job_location = job.get("categories", {}).get("location", "")
-                if location.lower() != "any" and location.lower() not in job_location.lower():
-                    continue
-
-                job_listing = JobListing(
-                    title=job.get("text", ""),
-                    company=self.company_name,
-                    description=job.get("description", ""),
-                    application_url=job.get("hostedUrl", ""),
-                    location=job_location,
-                    salary_range=job.get("compensation", ""),
-                    source=f"Lever ({self.company_name})",
-                    posted_date=job.get("createdAt"),
-                    raw_data=job
-                )
-                jobs.append(job_listing)
-
-        except Exception as e:
-            self.logger.error(f"Error fetching Lever jobs for {self.company_name}: {e}")
+            self.logger.error(f"Error fetching Indeed jobs: {e}")
 
         return jobs
 

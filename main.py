@@ -14,7 +14,7 @@ import time
 
 # Import our custom modules
 from config import Config
-from scrapers import JobScraperOrchestrator, JobListing, AmazonJobsAdapter, MicrosoftCareersAdapter
+from scrapers import JobScraperOrchestrator, JobListing
 from resume_matcher import ResumeMatcher, ResumeStorage
 
 # Setup logging
@@ -34,57 +34,21 @@ class JobMatcherAI:
     def __init__(self):
         self.config = Config()
 
-        # Initialize job scrapers - start with those that don't require API keys
+        # Initialize job scrapers
         adapters = []
 
-        # Add Amazon Jobs adapter (no API key required)
-        try:
-            adapters.append(AmazonJobsAdapter())
-            logger.info("Initialized Amazon Jobs adapter")
-        except Exception as e:
-            logger.warning(f"Failed to initialize Amazon Jobs adapter: {e}")
-
-        # Add Microsoft Careers adapter (no API key required)
-        try:
-            adapters.append(MicrosoftCareersAdapter())
-            logger.info("Initialized Microsoft Careers adapter")
-        except Exception as e:
-            logger.warning(f"Failed to initialize Microsoft Careers adapter: {e}")
-
-        # Optional: Add adapters that require API keys if credentials are available
-        # Greenhouse Adapter (requires token)
-        greenhouse_token = os.getenv('GREENHOUSE_TOKEN')
-        if greenhouse_token:
+        apify_token = os.getenv('APIFY_API_TOKEN')
+        if apify_token:
             try:
-                # Note: In a real implementation, you'd specify which companies to track
-                # For demo, we'll use a placeholder - in practice, you'd configure specific companies
-                from scrapers import GreenhouseAdapter
-                adapters.append(GreenhouseAdapter("demo_company", greenhouse_token))
-                logger.info("Initialized Greenhouse adapter")
+                from scrapers import ApifyLinkedInAdapter, ApifyNaukriAdapter, ApifyIndeedAdapter
+                adapters.append(ApifyLinkedInAdapter(apify_token))
+                adapters.append(ApifyNaukriAdapter(apify_token))
+                adapters.append(ApifyIndeedAdapter(apify_token))
+                logger.info("Initialized Apify actors for LinkedIn, Naukri, and Indeed")
             except Exception as e:
-                logger.warning(f"Failed to initialize Greenhouse adapter: {e}")
+                logger.warning(f"Failed to initialize Apify adapters: {e}")
         else:
-            logger.info("Greenhouse token not provided - skipping Greenhouse adapter")
-
-        # Lever Adapter (requires company name - no token needed for public companies)
-        lever_company = os.getenv('LEVER_COMPANY')
-        if lever_company:
-            try:
-                from scrapers import LeverAdapter
-                adapters.append(LeverAdapter(lever_company))
-                logger.info(f"Initialized Lever adapter for {lever_company}")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Lever adapter for {lever_company}: {e}")
-        else:
-            # Add a few common tech companies that use Lever as examples
-            lever_companies = ["netflix", "shopify", "videoconferencing"]  # Examples
-            for company in lever_companies:
-                try:
-                    from scrapers import LeverAdapter
-                    adapters.append(LeverAdapter(company))
-                    logger.info(f"Initialized Lever adapter for {company}")
-                except Exception as e:
-                    logger.debug(f"Could not initialize Lever adapter for {company}: {e}")
+            logger.warning("APIFY_API_TOKEN not found in environment. Please add it to your .env file or GitHub Secrets. No scraping will occur.")
 
         # Create the orchestrator with our adapters
         self.scraper = JobScraperOrchestrator(adapters)
@@ -179,52 +143,17 @@ class JobMatcherAI:
 
                         logger.info(f"Initial match score: {match_score:.1f}%")
 
-                        # If initial match is below threshold, try to optimize resume
-                        if match_score < self.config.TARGET_MATCH_THRESHOLD:
-                            logger.info(f"Attempting to optimize resume for {self.config.TARGET_MATCH_THRESHOLD}% match")
-                            match_result = self.resume_matcher.optimize_resume(
-                                self.base_resume, job.description, self.config.TARGET_MATCH_THRESHOLD
-                            )
-
-                            # Save optimized resume
-                            resume_filename = f"{job.company}_{job.title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-                            resume_path = self.resume_storage.save_resume(
-                                match_result.optimized_resume_text, resume_filename
-                            )
-
-                            result = {
-                                'company': job.company,
-                                'position': job.title,
-                                'match_percentage': match_result.match_score,
-                                'resume_path': resume_path,
-                                'apply_link': job.application_url,
-                                'salary': job.salary_range,
-                                'location': job.location,
-                                'source': job.source,
-                                'missing_keywords': missing_keywords,
-                                'matching_keywords': matching_keywords,
-                                'optimization_suggestions': match_result.suggestions
-                            }
-                        else:
-                            # Use original resume if already meets threshold
-                            resume_filename = f"{job.company}_{job.title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_original.txt"
-                            resume_path = self.resume_storage.save_resume(
-                                self.base_resume, resume_filename
-                            )
-
-                            result = {
-                                'company': job.company,
-                                'position': job.title,
-                                'match_percentage': match_score,
-                                'resume_path': resume_path,
-                                'apply_link': job.application_url,
-                                'salary': job.salary_range,
-                                'location': job.location,
-                                'source': job.source,
-                                'missing_keywords': missing_keywords,
-                                'matching_keywords': matching_keywords,
-                                'optimization_suggestions': ["Resume already meets target match threshold"]
-                            }
+                        result = {
+                            'company': job.company,
+                            'position': job.title,
+                            'match_percentage': match_score,
+                            'apply_link': job.application_url,
+                            'salary': job.salary_range,
+                            'location': job.location,
+                            'source': job.source,
+                            'missing_keywords': missing_keywords,
+                            'matching_keywords': matching_keywords
+                        }
 
                         results.append(result)
                         logger.info(f"Completed processing for {job.title} at {job.company}")
@@ -257,13 +186,8 @@ if __name__ == "__main__":
         print("\nTop matches:")
         # Sort by match percentage descending
         sorted_results = sorted(results, key=lambda x: x['match_percentage'], reverse=True)
-        for i, result in enumerate(sorted_results[:5], 1):  # Top 5
-            print(f"{i}. {result['position']} at {result['company']} - {result['match_percentage']:.1f}% match")
-            print(f"   Resume saved to: {result['resume_path']}")
-            print(f"   Apply here: {result['apply_link']}")
-            if result['salary']:
-                print(f"   Salary: {result['salary']}")
-            print()
+        for i, result in enumerate(sorted_results, 1):
+            print(f"{i}. {result['company']} - {result['match_percentage']:.1f}% Match - Link: {result['apply_link']}")
     else:
         print("No jobs were processed. Check logs for details.")
         print("Note: This may be expected if API keys for job boards are not configured.")
