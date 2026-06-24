@@ -58,29 +58,34 @@ class ApifyLinkedInAdapter(JobScraperAdapter):
             self.logger.error("Apify client not installed.")
             return jobs
 
+        import urllib.parse
         query = " ".join(keywords[:3])
+        encoded_query = urllib.parse.quote(query)
+        encoded_location = urllib.parse.quote(location)
+        search_url = f"https://www.linkedin.com/jobs/search/?keywords={encoded_query}&location={encoded_location}&position=1&pageNum=0"
+        
         run_input = {
-            "queries": f"{query} in {location}",
-            "limit": 20,
-            "publishedAt": "any",
-            "searchType": "jobs"
+            "urls": [search_url],
+            "scrapeCompany": True,
+            "count": 20,
+            "splitByLocation": False
         }
         
         try:
             self.logger.info(f"Starting LinkedIn Actor for {query} in {location}")
-            run = self.client.actor("curious-coder/linkedin-jobs-scraper").call(run_input=run_input)
+            run = self.client.actor("hKByXkMQaC5Qt9UMN").call(run_input=run_input)
             dataset = self.client.dataset(run["defaultDatasetId"])
             
             for item in dataset.iterate_items():
                 job_listing = JobListing(
                     title=item.get("title", ""),
-                    company=item.get("companyName", ""),
-                    description=item.get("description", ""),
-                    application_url=item.get("url", ""),
+                    company=item.get("companyName", item.get("company", "")),
+                    description=item.get("description", item.get("jobDescription", "")),
+                    application_url=item.get("jobUrl", item.get("url", "")),
                     location=item.get("location", ""),
                     salary_range="",
                     source="LinkedIn",
-                    posted_date=item.get("postedAt"),
+                    posted_date=item.get("postedAt", item.get("datePosted", "")),
                     raw_data=item
                 )
                 jobs.append(job_listing)
