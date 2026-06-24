@@ -108,6 +108,29 @@ class JobMatcherAI:
         except Exception as e:
             logger.error(f"Failed to save results: {e}")
 
+    def send_telegram_message(self, message: str) -> None:
+        """Send a message via Telegram bot."""
+        import requests
+        bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        chat_id = os.getenv('TELEGRAM_CHAT_ID')
+        
+        if not bot_token or not chat_id:
+            logger.warning("Telegram credentials not set. Skipping notification.")
+            return
+
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message[:4096]
+        }
+        
+        try:
+            response = requests.post(url, json=payload, timeout=10)
+            response.raise_for_status()
+            logger.info("Telegram message sent successfully.")
+        except Exception as e:
+            logger.error(f"Failed to send Telegram message: {e}")
+
     def run(self) -> List[Dict[str, Any]]:
         """Main execution loop"""
         logger.info("Starting Job Matching AI system")
@@ -184,10 +207,17 @@ if __name__ == "__main__":
 
     if results:
         print("\nTop matches:")
+        report_lines = ["🔥 Top Job Matches for Today\n"]
         # Sort by match percentage descending
         sorted_results = sorted(results, key=lambda x: x['match_percentage'], reverse=True)
         for i, result in enumerate(sorted_results, 1):
-            print(f"{i}. {result['company']} - {result['match_percentage']:.1f}% Match - Link: {result['apply_link']}")
+            line = f"{i}. {result['company']} - {result['match_percentage']:.1f}% Match - Link: {result['apply_link']}"
+            print(line)
+            report_lines.append(line)
+            
+        # Send telegram notification
+        report_string = "\n".join(report_lines)
+        matcher.send_telegram_message(report_string)
     else:
         print("No jobs were processed. Check logs for details.")
         print("Note: This may be expected if API keys for job boards are not configured.")
