@@ -224,8 +224,11 @@ if __name__ == "__main__":
         # Sort by match percentage descending
         sorted_results = sorted(results, key=lambda x: x['match_percentage'], reverse=True)
         for i, result in enumerate(sorted_results, 1):
-            line = f"{i}. {result['company']} - {result['match_percentage']:.1f}% Match - Link: {result['apply_link']}"
-            print(line)
+            company = result.get('company') or "Unknown Company"
+            title = result.get('job_title') or "Unknown Role"
+            link = result.get('apply_link') or "No Link"
+            line = f"{i}. {title} at {company} - {result['match_percentage']:.1f}% Match\n   Link: {link}\n"
+            print(line.strip())
             report_lines.append(line)
             
         # Send telegram notification
