@@ -31,53 +31,92 @@ class MatchResult:
     suggestions: List[str]
     optimized_resume_text: str
 
-class NIMClient:
-    """Client for NVIDIA NIM API (OpenAI-compatible endpoint)"""
+class LLMClient:
+    """Client for Groq and NVIDIA NIM APIs (OpenAI-compatible endpoints)"""
 
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
-        self.api_key = api_key or os.getenv('NVIDIA_NIM_API_KEY')
-        self.model = model or os.getenv('NVIDIA_NIM_MODEL', 'meta/llama-3.1-8b-instruct')
-        self.base_url = "https://integrate.api.nvidia.com/v1/chat/completions"
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        if not self.api_key:
-            logger.warning("NVIDIA NIM API key not provided. NIM features will be disabled.")
+    def __init__(self, groq_api_key: Optional[str] = None, nim_api_key: Optional[str] = None, 
+                 groq_model: Optional[str] = None, nim_model: Optional[str] = None):
+        self.groq_api_key = groq_api_key or os.getenv('GROK_API_KEY') or os.getenv('GROQ_API_KEY')
+        self.nim_api_key = nim_api_key or os.getenv('NVIDIA_NIM_API_KEY')
+        
+        self.groq_model = groq_model or "llama-3.1-8b-instant"
+        self.nim_model = nim_model or os.getenv('NVIDIA_NIM_MODEL', 'meta/llama-3.1-8b-instruct')
+        
+        self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.nim_base_url = "https://integrate.api.nvidia.com/v1/chat/completions"
+        
+        if not self.groq_api_key and not self.nim_api_key:
+            logger.warning("Neither Groq nor NVIDIA NIM API keys provided. LLM features will be disabled.")
 
-    def _call_nim(self, messages: list, temperature: float = 0.2, max_tokens: int=1000) -> str:
-        """Make a call to NVIDIA NIM API"""
-        if not self.api_key:
-            raise ValueError("NVIDIA NIM API key not set")
+    def _call_llm(self, messages: list, temperature: float = 0.2, max_tokens: int=1000) -> str:
+        """Make a call to Groq (primary) or NVIDIA NIM (fallback) API"""
+        if not self.groq_api_key and not self.nim_api_key:
+            raise ValueError("No LLM API keys set")
 
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "stream": False
-        }
+        # Try Groq First
+        if self.groq_api_key:
+            payload = {
+                "model": self.groq_model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": False
+            }
+            headers = {
+                "Authorization": f"Bearer {self.groq_api_key}",
+                "Content-Type": "application/json"
+            }
+            try:
+                response = requests.post(self.groq_base_url, headers=headers, json=payload, timeout=30)
+                response.raise_for_status()
+                result = response.json()
+                return result['choices'][0]['message']['content'].strip()
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 401:
+                    logger.error("Groq API key is invalid or unauthorized.")
+                elif response.status_code == 404:
+                    logger.error(f"Groq model '{self.groq_model}' not found.")
+                else:
+                    logger.error(f"Groq API HTTP error: {e}")
+                logger.error("Falling back to NVIDIA NIM...")
+            except Exception as e:
+                logger.error(f"Groq API call failed: {e}. Falling back to NVIDIA NIM...")
 
-        try:
-            response = requests.post(self.base_url, headers=self.headers, json=payload, timeout=30)
-            response.raise_for_status()
-            result = response.json()
-            return result['choices'][0]['message']['content'].strip()
-        except requests.exceptions.HTTPError as e:
-            if response.status_code == 401:
-                logger.error("NVIDIA NIM API key is invalid or unauthorized. Please check your NVIDIA_NIM_API_KEY.")
-            elif response.status_code == 404:
-                logger.error(f"NVIDIA NIM model '{self.model}' not found. Please check your NVIDIA_NIM_MODEL.")
-            else:
-                logger.error(f"NVIDIA NIM API HTTP error: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"NVIDIA NIM API call failed: {e}")
-            raise
+        # Fallback to NVIDIA NIM
+        if self.nim_api_key:
+            payload = {
+                "model": self.nim_model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": False
+            }
+            headers = {
+                "Authorization": f"Bearer {self.nim_api_key}",
+                "Content-Type": "application/json"
+            }
+            try:
+                response = requests.post(self.nim_base_url, headers=headers, json=payload, timeout=30)
+                response.raise_for_status()
+                result = response.json()
+                return result['choices'][0]['message']['content'].strip()
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 401:
+                    logger.error("NVIDIA NIM API key is invalid or unauthorized.")
+                elif response.status_code == 404:
+                    logger.error(f"NVIDIA NIM model '{self.nim_model}' not found.")
+                else:
+                    logger.error(f"NVIDIA NIM API HTTP error: {e}")
+                raise
+            except Exception as e:
+                logger.error(f"NVIDIA NIM API call failed: {e}")
+                raise
+        
+        raise ValueError("All LLM API calls failed.")
 
     def extract_keywords(self, text: str) -> List[str]:
-        """Extract important keywords from text using NIM"""
-        if not self.api_key:
+        """Extract important keywords from text using LLM"""
+        if not self.groq_api_key and not self.nim_api_key:
             return self._fallback_extract_keywords(text)
 
         prompt = f"""Extract the most important technical skills, tools, technologies, methodologies, and key nouns from the following text.
@@ -90,17 +129,17 @@ Text:
 Keywords:"""
 
         try:
-            response = self._call_nim([{"role": "user", "content": prompt}], temperature=0.1, max_tokens=200)
+            response = self._call_llm([{"role": "user", "content": prompt}], temperature=0.1, max_tokens=200)
             keywords = [k.strip().lower() for k in response.split(',') if k.strip()]
             keywords = [k for k in keywords if len(k) > 1 and k not in ['and', 'or', 'the', 'a', 'an', 'to', 'of', 'in', 'for', 'with', 'on', 'at', 'by']]
             return list(dict.fromkeys(keywords))
         except Exception as e:
-            logger.error(f"Keyword extraction via NIM failed: {e}. Falling back to regex.")
+            logger.error(f"Keyword extraction via LLM failed: {e}. Falling back to regex.")
             return self._fallback_extract_keywords(text)
 
     def calculate_match_score(self, resume_text: str, job_description: str) -> tuple:
-        """Calculate match score between resume and job description using NIM"""
-        if not self.api_key:
+        """Calculate match score between resume and job description using LLM"""
+        if not self.groq_api_key and not self.nim_api_key:
             return self._fallback_calc_score_basic(resume_text, job_description)
 
         prompt = f"""You are an expert ATS (Applicant Tracking System) analyzer.
@@ -125,7 +164,7 @@ Respond in JSON format ONLY:
 }}"""
 
         try:
-            response = self._call_nim([{"role": "user", "content": prompt}], temperature=0.1, max_tokens=500)
+            response = self._call_llm([{"role": "user", "content": prompt}], temperature=0.1, max_tokens=500)
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
                 result = json.loads(json_match.group())
@@ -138,12 +177,12 @@ Respond in JSON format ONLY:
             else:
                 raise ValueError("No JSON found in response")
         except Exception as e:
-            logger.error(f"Match scoring via NIM failed: {e}. Falling back.")
+            logger.error(f"Match scoring via LLM failed: {e}. Falling back.")
             return self._fallback_calc_score_basic(resume_text, job_description)
 
     def optimize_resume(self, base_resume: str, job_description: str, target_score: float = 95.0) -> MatchResult:
-        """Optimize resume to match job description using NIM"""
-        if not self.api_key:
+        """Optimize resume to match job description using LLM"""
+        if not self.groq_api_key and not self.nim_api_key:
             return self._fallback_optimize_resume(base_resume, job_description, target_score)
 
         score, missing, matching = self.calculate_match_score(base_resume, job_description)
@@ -178,7 +217,7 @@ Missing Keywords to incorporate: {', '.join(missing)}
 Optimized Resume:"""
 
         try:
-            optimized_text = self._call_nim([{"role": "user", "content": prompt}], temperature=0.2, max_tokens=1500)
+            optimized_text = self._call_llm([{"role": "user", "content": prompt}], temperature=0.2, max_tokens=1500)
             if len(optimized_text.strip()) < 50:
                 raise ValueError("Generated resume too short")
 
@@ -198,7 +237,7 @@ Optimized Resume:"""
                 optimized_resume_text=optimized_text
             )
         except Exception as e:
-            logger.error(f"Resume optimization via NIM failed: {e}. Falling back.")
+            logger.error(f"Resume optimization via LLM failed: {e}. Falling back.")
             return self._fallback_optimize_resume(base_resume, job_description, target_score)
 
     def _fallback_extract_keywords(self, text: str) -> List[str]:
@@ -242,16 +281,16 @@ class ResumeMatcher:
     """Matches resume against job descriptions and suggests optimizations"""
 
     def __init__(self):
-        self.nim_client = NIMClient()
+        self.llm_client = LLMClient()
 
     def extract_keywords(self, text: str) -> List[str]:
-        return self.nim_client.extract_keywords(text)
+        return self.llm_client.extract_keywords(text)
 
     def calculate_match_score(self, resume_text: str, job_description: str) -> Tuple[float, List[str], List[str]]:
-        return self.nim_client.calculate_match_score(resume_text, job_description)
+        return self.llm_client.calculate_match_score(resume_text, job_description)
 
     def optimize_resume(self, base_resume: str, job_description: str, target_score: float = 95.0) -> MatchResult:
-        return self.nim_client.optimize_resume(base_resume, job_description, target_score)
+        return self.llm_client.optimize_resume(base_resume, job_description, target_score)
 
 
 class ResumeStorage:
