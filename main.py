@@ -17,6 +17,9 @@ from config import Config
 from scrapers import JobScraperOrchestrator, JobListing
 from resume_matcher import ResumeMatcher, ResumeLoader
 
+# Ensure logging directory exists
+Config.LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
