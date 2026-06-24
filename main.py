@@ -43,11 +43,21 @@ class JobMatcherAI:
         apify_token = os.getenv('APIFY_API_TOKEN')
         if apify_token:
             try:
-                from scrapers import ApifyLinkedInAdapter, ApifyNaukriAdapter, ApifyIndeedAdapter
+                from scrapers import (
+                    ApifyLinkedInAdapter, 
+                    ApifyNaukriAdapter, 
+                    ApifyIndeedAdapter,
+                    ApifyWellfoundAdapter,
+                    ApifyGlassdoorAdapter,
+                    ApifyYCAdapter
+                )
                 adapters.append(ApifyLinkedInAdapter(apify_token))
                 adapters.append(ApifyNaukriAdapter(apify_token))
                 adapters.append(ApifyIndeedAdapter(apify_token))
-                logger.info("Initialized Apify actors for LinkedIn, Naukri, and Indeed")
+                adapters.append(ApifyWellfoundAdapter(apify_token))
+                adapters.append(ApifyGlassdoorAdapter(apify_token))
+                adapters.append(ApifyYCAdapter(apify_token))
+                logger.info("Initialized Apify actors for LinkedIn, Naukri, Indeed, Wellfound, Glassdoor, and YCombinator")
             except Exception as e:
                 logger.warning(f"Failed to initialize Apify adapters: {e}")
         else:

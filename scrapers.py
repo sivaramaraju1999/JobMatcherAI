@@ -179,6 +179,131 @@ class ApifyIndeedAdapter(JobScraperAdapter):
 
         return jobs
 
+class ApifyWellfoundAdapter(JobScraperAdapter):
+    """Adapter for orgupdate/wellfound-jobs-scraper"""
+
+    def __init__(self, token: str):
+        super().__init__("Wellfound (Apify)")
+        self.client = ApifyClient(token)
+
+    def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
+        jobs = []
+        if not APIFY_AVAILABLE:
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "query": query,
+            "location": location,
+            "results_wanted": 20
+        }
+        
+        try:
+            self.logger.info(f"Starting Wellfound Actor for {query} in {location}")
+            run = self.client.actor("orgupdate/wellfound-jobs-scraper").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
+                job_listing = JobListing(
+                    title=item.get("title", item.get("jobTitle", "")),
+                    company=item.get("companyName", item.get("company", "")),
+                    description=item.get("description", item.get("jobDescription", "")),
+                    application_url=item.get("url", item.get("jobUrl", "")),
+                    location=item.get("location", ""),
+                    salary_range=item.get("salaryRange", item.get("salary", "")),
+                    source="Wellfound",
+                    posted_date=item.get("postedAt", item.get("datePosted", "")),
+                    raw_data=item
+                )
+                jobs.append(job_listing)
+        except Exception as e:
+            self.logger.error(f"Error fetching Wellfound jobs: {e}")
+
+        return jobs
+
+class ApifyGlassdoorAdapter(JobScraperAdapter):
+    """Adapter for orgupdate/glassdoor-jobs-scraper"""
+
+    def __init__(self, token: str):
+        super().__init__("Glassdoor (Apify)")
+        self.client = ApifyClient(token)
+
+    def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
+        jobs = []
+        if not APIFY_AVAILABLE:
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "keyword": query,
+            "location": location,
+            "maxItems": 20
+        }
+        
+        try:
+            self.logger.info(f"Starting Glassdoor Actor for {query} in {location}")
+            run = self.client.actor("orgupdate/glassdoor-jobs-scraper").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
+                job_listing = JobListing(
+                    title=item.get("jobTitle", item.get("title", "")),
+                    company=item.get("employerName", item.get("company", "")),
+                    description=item.get("description", item.get("jobDescription", "")),
+                    application_url=item.get("jobUrl", item.get("url", "")),
+                    location=item.get("location", ""),
+                    salary_range=item.get("salary", item.get("salaryEstimate", "")),
+                    source="Glassdoor",
+                    posted_date=item.get("postedAt", item.get("datePosted", "")),
+                    raw_data=item
+                )
+                jobs.append(job_listing)
+        except Exception as e:
+            self.logger.error(f"Error fetching Glassdoor jobs: {e}")
+
+        return jobs
+
+class ApifyYCAdapter(JobScraperAdapter):
+    """Adapter for automation-lab/ycombinator-jobs-scraper"""
+
+    def __init__(self, token: str):
+        super().__init__("YCombinator (Apify)")
+        self.client = ApifyClient(token)
+
+    def fetch_jobs(self, keywords: List[str], location: str) -> List[JobListing]:
+        jobs = []
+        if not APIFY_AVAILABLE:
+            return jobs
+
+        query = " ".join(keywords[:3])
+        run_input = {
+            "query": query,
+            "maxItems": 20
+        }
+        
+        try:
+            self.logger.info(f"Starting YCombinator Actor for {query}")
+            run = self.client.actor("automation-lab/ycombinator-jobs-scraper").call(run_input=run_input)
+            dataset = self.client.dataset(run["defaultDatasetId"])
+            
+            for item in dataset.iterate_items():
+                job_listing = JobListing(
+                    title=item.get("title", item.get("jobTitle", "")),
+                    company=item.get("companyName", item.get("company", "")),
+                    description=item.get("description", item.get("jobDescription", "")),
+                    application_url=item.get("url", item.get("jobUrl", "")),
+                    location=item.get("location", ""),
+                    salary_range=item.get("salary", item.get("salaryRange", "")),
+                    source="YCombinator",
+                    posted_date=item.get("postedAt", item.get("datePosted", "")),
+                    raw_data=item
+                )
+                jobs.append(job_listing)
+        except Exception as e:
+            self.logger.error(f"Error fetching YCombinator jobs: {e}")
+
+        return jobs
+
 class JobScraperOrchestrator:
     """Orchestrates multiple job scrapers"""
 
