@@ -103,26 +103,26 @@ class ApifyNaukriAdapter(JobScraperAdapter):
 
         query = " ".join(keywords[:3])
         run_input = {
-            "search": query,
-            "location": location,
-            "maxItems": 20
+            "keyword": query,
+            "cities": location,
+            "maxJobs": 20
         }
         
         try:
             self.logger.info(f"Starting Naukri Actor for {query} in {location}")
-            run = self.client.actor("themineworks/naukri-jobs").call(run_input=run_input)
+            run = self.client.actor("muhammetakkurtt/naukri-job-scraper").call(run_input=run_input)
             dataset = self.client.dataset(run["defaultDatasetId"])
             
             for item in dataset.iterate_items():
                 job_listing = JobListing(
                     title=item.get("title", ""),
-                    company=item.get("companyName", ""),
-                    description=item.get("jobDescription", ""),
-                    application_url=item.get("jobUrl", ""),
-                    location=item.get("locations", ""),
-                    salary_range=item.get("salary", ""),
+                    company=item.get("companyName", item.get("company", "")),
+                    description=item.get("jobDescription", item.get("description", "")),
+                    application_url=item.get("jobUrl", item.get("url", "")),
+                    location=item.get("locations", item.get("location", "")),
+                    salary_range=item.get("salary", item.get("salaryRange", "")),
                     source="Naukri",
-                    posted_date=item.get("postedDate"),
+                    posted_date=item.get("postedDate", item.get("postedAt", "")),
                     raw_data=item
                 )
                 jobs.append(job_listing)
