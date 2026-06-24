@@ -15,7 +15,7 @@ import time
 # Import our custom modules
 from config import Config
 from scrapers import JobScraperOrchestrator, JobListing
-from resume_matcher import ResumeMatcher, ResumeStorage
+from resume_matcher import ResumeMatcher, ResumeLoader
 
 # Setup logging
 logging.basicConfig(
@@ -55,10 +55,10 @@ class JobMatcherAI:
         logger.info(f"Initialized JobScraperOrchestrator with {len(adapters)} adapters")
 
         self.resume_matcher = ResumeMatcher()
-        self.resume_storage = ResumeStorage(self.config)
+        self.resume_loader = ResumeLoader(self.config)
 
         # Load base resume
-        self.base_resume = self.resume_storage.load_base_resume()
+        self.base_resume = self.resume_loader.load_base_resume()
         logger.info("Base resume loaded")
 
         # Load keywords from file or environment
@@ -95,11 +95,11 @@ class JobMatcherAI:
             return
 
         # Ensure output directory exists
-        self.config.RESUMES_DIR.mkdir(parents=True, exist_ok=True)
+        self.config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
         # Create timestamped filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = self.config.RESUMES_DIR / f"job_matches_{timestamp}.json"
+        output_file = self.config.OUTPUT_DIR / f"job_matches_{timestamp}.json"
 
         try:
             with open(output_file, 'w', encoding='utf-8') as f:

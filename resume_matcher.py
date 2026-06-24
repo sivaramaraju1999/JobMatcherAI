@@ -213,24 +213,11 @@ class ResumeMatcher:
 
 
 
-class ResumeStorage:
-    """Handles saving and loading resumes"""
+class ResumeLoader:
+    """Handles loading the base resume"""
 
     def __init__(self, config):
         self.config = config
-
-    def save_resume(self, resume_text: str, filename: str) -> str:
-        """Save resume text to file"""
-        # Ensure outputs/resumes directory exists
-        self.config.RESUMES_DIR.mkdir(parents=True, exist_ok=True)
-
-        filepath = self.config.RESUMES_DIR / filename
-
-        # For simplicity, we're saving as text. In production, you might want PDF/DOCX
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(resume_text)
-
-        return str(filepath.absolute())
 
     def load_base_resume(self) -> str:
         """Load base resume from file or environment - supports .txt and .pdf"""
