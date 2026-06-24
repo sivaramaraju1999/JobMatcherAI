@@ -222,8 +222,10 @@ if __name__ == "__main__":
         report_string = "\n".join(report_lines)
         matcher.send_telegram_message(report_string)
     else:
-        print("No jobs were processed. Check logs for details.")
+        msg = "JobMatcherAI ran today, but found 0 matching jobs. Check GitHub Actions logs for details."
+        print(msg)
         print("Note: This may be expected if API keys for job boards are not configured.")
         print("The system is designed to work with NVIDIA NIM for resume optimization even without job scraping.")
+        matcher.send_telegram_message("⚠️ " + msg)
 
     print("="*60)
