@@ -1,0 +1,40 @@
+{
+    "roles": [
+        "Senior SDET",
+        "Software Quality Engineer",
+        "Test Automation Engineer",
+        "QA Framework Architect",
+        "Automation Test Engineer",
+        "QA Lead"
+    ],
+    "technologies": [
+        "Java",
+        "Python",
+        "SQL",
+        "NoSQL",
+        "REST API",
+        "Jenkins",
+        "GitHub Actions",
+        "GitLab CI",
+        "Docker",
+        "AWS",
+        "MySQL",
+        "PostgreSQL",
+        "Oracle",
+        "Snowflake",
+        "MongoDB",
+        "Redis",
+        "DynamoDB",
+        "Selenium",
+        "Playwright",
+        "RestAssured",
+        "JMeter",
+        "Cucumber BDD",
+        "TestNG"
+    ],
+    "experience_levels": [
+        "Senior",
+        "Lead",
+        "Architect"
+    ]
+}

@@ -1,0 +1,85 @@
+SIVARAMARAJU KALIDINDI
+Senior SDET  Test Automation Engineer  QA Framework Architect
++91 7997665934 | kalidindisivaramaraju24@gmail.com | Hyderabad, India | linkedin.com/in/sivaramaraju-kalidindi |
+github.com/sivaramaraju-k/Core-Prime
+PROFESSIONAL SUMMARY
+Results-driven Senior SDET and Test Automation Engineer with 3+ years of experience architecting enterprise-grade continuous quality engineering platforms across financial services, healthcare, and EdTech. Proven track record of cutting regression cycle time by 60% and defect leakage by 40%. Skilled in designing and implementing AI-augmented test intelligence layers, leveraging RAG pipelines, LLM-based failure analysis, and MCP server integration. Proficient in cloud-based testing frameworks, including AWS CloudFormation, and experienced in working with cross-functional teams to deliver high-quality software solutions.
+
+TECHNICAL SKILLS
+Languages:
+Java 21 (Advanced — OOP, Design Patterns: Factory, Singleton, Strategy, Builder, Observer), SQL, Gherkin;
+Python (scripting/data validation), JavaScript (basic)
+Automation Frameworks:
+Selenium WebDriver, Selenium IDE, Selenium Grid, Playwright, Selenium BiDi (WebDriver BiDi), TestNG, JUnit,
+Cucumber BDD/TDD, POM, Hybrid Dual-Engine Framework, DataFaker
+API Testing:
+RestAssured, Karate (awareness), Postman, Swagger, SOAP UI (exposure), REST/SOAP, JSON/XML, JSON
+schema validation, SLA response-time assertions, contract testing, end-to-end hybrid workflow validation
+Testing Types:
+Functional, Regression, Smoke/Sanity, UAT, Integration, Cross-Browser, Parallel Execution, Performance, API
+Automation, ETL/Data Validation, Manual (foundational)
+Frameworks & Build:
+Spring Context, Spring Profiles, Apache DBCP2, Gradle (strict dependency locks, background config cache),
+Maven
+CI/CD & DevOps:
+Jenkins (parallel worker nodes, parameterized pipelines), GitHub Actions, GitLab CI (exposure), Git, GitHub,
+Docker (familiarity), DEV→SIT→UAT pipeline promotion
+Databases & Data:
+Oracle, Snowflake, MySQL, PostgreSQL, MongoDB, Redis, DynamoDB; JDBC, SQL (JOINs, GROUP BY,
+window functions, aggregations), ETL pipeline testing, Apache DBCP2 connection pooling
+Performance Testing:
+JMeter — Load, Stress, Spike, Throughput; bottleneck diagnosis; root cause analysis; CI/CD pipeline integration
+Reporting & Observability:
+Allure (video capture, step screenshots), ExtentReports (CSS/memory-optimised, Base64 failure logs),
+Cucumber dual-listener event binding, defect leakage tracking
+IDEs & Tooling:
+IntelliJ IDEA, Eclipse, VS Code, JIRA, Confluence, GitHub Copilot
+AI-Augmented Testing:
+RAG pipeline integration (LangChain, Qdrant, OpenAI embeddings), MCP server integration, LLM-based failure
+triage piped to Allure, SLM on-device test generation, Healenium self-healing locators — implementing on
+FHLBNY AHP project (AWS deployment, Q3 2026)
+Cloud Computing:
+AWS CloudFormation, AWS Lambda, AWS API Gateway, AWS S3, AWS DynamoDB
+Procurement:
+RFPs, RFIs, contract negotiations, purchase order creations, BPO, NDAs, import and export teams
+Project Management:
+Agile/Scrum, SDLC/STLC, Test Planning, Risk-Based Testing, Code Review, Sprint Retrospectives, Global
+Delivery
+PROFESSIONAL EXPERIENCE
+Senior Software Quality Engineer (SDET)
+Prospect Infosystem — Client: Federal Bank of New York | Hyderabad | Feb 2024 – Present
+ Architected Core-Prime, a production-grade Hybrid Test Automation Framework (Selenium-Java 21, OOP, Factory/Strategy/Builder
+design patterns, TestNG, Cucumber BDD, Selenium Grid, Allure) end-to-end — raised test coverage 35%, eliminated 8+ hrs/week of
+manual regression, accelerated release frequency 30% through Jenkins CI/CD; adopted as the company-wide automation SME
+standard across all active projects with zero test rewrites.
+ Engineered a Selenium-Playwright Hybrid Bridge — a unified driver abstraction layer auto-delegating to Playwright for unsupported
+operations or executions exceeding 15-second thresholds — enabling 100% thread-safe parallel cross-browser execution (Chrome,
+Firefox, Edge) with zero test rewrites on migration.
+ Implemented Selenium WebDriver BiDi (WebSocket bidirectional protocol) for real-time network interception, browser log capture, and
+DOM event monitoring — replacing non-standard CDP workarounds with spec-compliant, future-proof browser communication; enabled
+financial-grade network traffic assertions directly within test execution.
+ Designed and executed end-to-end test plans covering functional, regression, smoke/sanity, UAT, integration, and cross-browser
+suites across Credit & Deposit Administration, Discount Window Lending, and Community Lending modules — aligned to STLC
+milestones and Agile sprint cadences.
+ Delivered RestAssured API automation validating BI dashboard metrics against Snowflake SQL aggregations across REST/JSON
+endpoints — cut defect leakage 40% and enabled zero-regression BI releases verified against Swagger API contracts and Postman
+regression collections.
+ Authored complex multi-table SQL JOIN queries (aggregations, GROUP BY, window functions) from developer schemas; executed
+cross-platform DB validation Oracle↔Snowflake via JDBC — detecting transformation errors, row-count mismatches, and null
+propagation across data pipelines.
+ Validated Tidal-scheduled ETL pipeline jobs end-to-end through risk-based test prioritisation — improved data integrity 35% and
+reclaimed 10 hrs/week from manual reconciliation; coordinated findings with data engineering teams in Agile sprint reviews.
+ Implemented JMeter load and stress test suite — conducted root cause analysis on a critical throughput bottleneck pre-release,
+improving system throughput 45% and reducing API response time by 250 ms; integrated performance module into Jenkins CI/CD for
+continuous SLA monitoring.
+ Scaled parallel DB validation via Selenium Grid with isolated JDBC connections per thread asserting UI state against Oracle/Snowflake
+concurrently — delivering an additional 40% coverage increase and halving validation cycle time.
+ Mentored 3 junior engineers on POM architecture, Cucumber BDD design, SQL validation, and code review best practices —
+structured knowledge transfer reduced onboarding time from 3 weeks to 1 week and elevated sprint delivery quality across all team
+modules.
+ Drove code review participation across automation PRs — conducted root cause analysis on selector failures, FluentWait anti-patterns,
+and assertion gaps; enforced framework standards that reduced flaky test rate by 60% over two sprint cycles, eliminating pre-release
+emergency patching.
+AI-Augmented Test Intelligence — Affordable Housing Program (AHP) | FHLBNY
+ Designing an AI-augmented test intelligence layer for the FHLBNY Affordable Housing Program — architecting MCP (Model Context
+Protocol) server integration, a

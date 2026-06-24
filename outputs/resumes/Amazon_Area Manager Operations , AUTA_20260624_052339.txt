@@ -1,0 +1,48 @@
+SIVARAMARAJU KALIDINDI
+Senior SDET  Test Automation Engineer  QA Framework Architect
++91 7997665934 | kalidindisivaramaraju24@gmail.com | Hyderabad, India | linkedin.com/in/sivaramaraju-kalidindi |
+github.com/sivaramaraju-k/Core-Prime
+PROFESSIONAL SUMMARY
+Experiente SDET e Engenheiro de Teste de Automação com 3+ anos de experiência em arquitetar plataformas de qualidade contínua de alta escalabilidade em serviços financeiros, saúde e EdTech — reduzindo o ciclo de regressão em 60% e a perda de defeitos em 40%. Especialista em Core-Prime, uma estrutura de automação de produção híbrida Selenium-Playwright adotada como o padrão de automação da empresa, integrando Selenium WebDriver BiDi, ThreadLocal execução paralela, Java 21 OOP com padrões de design Factory/Strategy/Builder/Singleton/Observer, e uma matriz de validação de 10 bancos de dados.
+
+Profundo conhecimento em STLC de ponta a ponta: funcional, regressão, fumaça/sanidade, UAT, integração e testes de desempenho de JMeter — entrega de CI/CD via Jenkins/GitLab/Gradle parametrizado em DEV→SIT→UAT. Atualmente, integrando capacidades de inteligência artificial (RAG pipelines, análise de falhas baseada em LLM, integração de MCP) para a próxima geração de qualidade de software. Traz um histórico de mentorias, disciplina de entrega Agile-native e resultados de qualidade mensuráveis alinhados à transformação de escala empresarial.
+
+TECHNICAL SKILLS
+Idiomas:
+Java 21 (Avançado — OOP, Padrões de Design: Factory, Singleton, Strategy, Builder, Observer), SQL, Gherkin;
+Python (scriptagem/validação de dados), JavaScript (básico)
+Estruturas de Automação:
+Selenium WebDriver, Selenium IDE, Selenium Grid, Playwright, Selenium BiDi (WebDriver BiDi), TestNG, JUnit,
+Cucumber BDD/TDD, POM, Hybrid Dual-Engine Framework, DataFaker
+Testes de API:
+RestAssured, Karate (conhecimento), Postman, Swagger, SOAP UI (exposição), REST/SOAP, JSON/XML, validação de schema JSON, afirmações de tempo de resposta SLA, testes de contrato, validação de fluxo de trabalho híbrido de ponta a ponta
+Tipos de Testes:
+Funcional, Regressão, Fumaça/Sanidade, UAT, Integração, Cross-Browser, Execução Paralela, Desempenho, API
+Automação, ETL/Validação de Dados, Manual (fundamental)
+Ferramentas & Construção:
+Spring Context, Spring Profiles, Apache DBCP2, Gradle (locks de dependência estrita, cache de configuração de fundo),
+Maven
+CI/CD & DevOps:
+Jenkins (nós de trabalhadores paralelos, pipelines parametrizados), GitHub Actions, GitLab CI (exposição), Git, GitHub,
+Docker (familiaridade), DEV→SIT→UAT pipeline de promoção
+Bancos de Dados & Dados:
+Oracle, Snowflake, MySQL, PostgreSQL, MongoDB, Redis, DynamoDB; JDBC, SQL (JOINs, GROUP BY,
+funções de janela, agregações), testes de pipeline ETL, Apache DBCP2 de conexão de pool
+Testes de Desempenho:
+JMeter — Carga, Estresse, Pico, Teto; diagnóstico de gargalo; análise de causa raiz; integração de pipeline de CI/CD
+Relatórios & Observabilidade:
+Allure (captura de vídeo, capturas de tela de passo), ExtentReports (CSS/otimização de memória, logs de falha Base64),
+Cucumber dual-listener event binding, rastreio de perda de defeitos
+IDEs & Ferramentas:
+IntelliJ IDEA, Eclipse, VS Code, JIRA, Confluence, GitHub Copilot
+Inteligência Artificial-Augmentada:
+Integração de pipeline de RAG (LangChain, Qdrant, embeddings de OpenAI), integração de servidor de MCP, análise de falhas baseada em LLM pipada para Allure, geração de testes de dispositivo SLM, locadores de auto-cura Healenium — implementando em projeto AHP da FHLBNY (implantação em AWS, Q3 2026)
+Processo & Metodologia:
+Agile/Scrum, SDLC/STLC, Planejamento de Testes, Testes com Base em Risco, Revisão de Código, Retrospectivas de Sprint, Entrega Global
+PROFESSÃO EXPERIÊNCIA
+Senior Software Quality Engineer (SDET)
+Prospect Infosystem — Cliente: Federal Bank of New York | Hyderabad | Fev 2024 – Presente
+ Arquitetou Core-Prime, uma estrutura de automação de produção híbrida (Selenium-Java 21, OOP, Padrões de Design: Factory, Singleton, Strategy, Builder), end-to-end — aumentou a cobertura de testes em 35%, eliminou 8+ horas/semana de regressão manual, acelerou a frequência de lançamento em 30% através de CI/CD Jenkins; adotada como o padrão de automação da empresa em todos os projetos ativos com zero reescrita de testes.
+ Engenou uma Ponte de Automação Híbrida Selenium-Playwright — uma camada de abstração de motor unificada que delega automaticamente para Playwright para operações não suportadas ou execuções excedendo 15 segundos — permitindo 100% de execução paralela de cross-browser (Chrome, Firefox, Edge) com zero reescrita de testes na migração.
+ Implementou Selenium WebDriver BiDi (protocolo de rede bidirecional WebSocket) para a interceptação de rede em tempo real, captura de logs de navegador e monitoramento de eventos DOM — substituindo workarounds não padrão de CDP com comunicação de navegador futura e comprovada; habilitou afirmações de rede financeiras de alta segurança diretamente na execução de testes.
+ Desenhou e executou planos de testes de ponta a ponta cobrindo suites de funcional, regressão, fumaça/sanidade, UAT, integração e cross-browser em módulos de Crédito e Depósito de Administração, Desconto de J

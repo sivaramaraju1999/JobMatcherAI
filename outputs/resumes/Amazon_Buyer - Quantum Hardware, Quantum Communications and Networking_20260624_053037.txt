@@ -1,0 +1,69 @@
+SIVARAMARAJU KALIDINDI
+Senior SDET  Test Automation Engineer  QA Framework Architect
++91 7997665934 | kalidindisivaramaraju24@gmail.com | Hyderabad, India | linkedin.com/in/sivaramaraju-kalidindi |
+github.com/sivaramaraju-k/Core-Prime
+PROFESSIONAL SUMMARY
+Results-driven Senior SDET and Test Automation Engineer with 3+ years of experience architecting enterprise-grade continuous quality engineering platforms across financial services, healthcare, and EdTech, driving 60% regression cycle time reduction and 40% defect leakage decrease. Proven expertise in procurement, contract negotiations, and purchase order creations, with a strong background in defining problems, leading cross-functional teams, and communicating with senior executives. Skilled in AI-augmented testing, RAG pipeline integration, and LLM-based failure analysis, with a focus on delivering measurable quality outcomes and driving business growth.
+
+TECHNICAL SKILLS
+Languages:
+Java 21 (Advanced — OOP, Design Patterns: Factory, Singleton, Strategy, Builder, Observer), SQL, Gherkin;
+Python (scripting/data validation), JavaScript (basic)
+Automation Frameworks:
+Selenium WebDriver, Selenium IDE, Selenium Grid, Playwright, Selenium BiDi (WebDriver BiDi), TestNG, JUnit,
+Cucumber BDD/TDD, POM, Hybrid Dual-Engine Framework, DataFaker
+API Testing:
+RestAssured, Karate (awareness), Postman, Swagger, SOAP UI (exposure), REST/SOAP, JSON/XML, JSON
+schema validation, SLA response-time assertions, contract testing, end-to-end hybrid workflow validation
+Testing Types:
+Functional, Regression, Smoke/Sanity, UAT, Integration, Cross-Browser, Parallel Execution, Performance, API
+Automation, ETL/Data Validation, Manual (foundational)
+Frameworks & Build:
+Spring Context, Spring Profiles, Apache DBCP2, Gradle (strict dependency locks, background config cache),
+Maven
+CI/CD & DevOps:
+Jenkins (parallel worker nodes, parameterized pipelines), GitHub Actions, GitLab CI (exposure), Git, GitHub,
+Docker (familiarity), DEV→SIT→UAT pipeline promotion
+Databases & Data:
+Oracle, Snowflake, MySQL, PostgreSQL, MongoDB, Redis, DynamoDB; JDBC, SQL (JOINs, GROUP BY,
+window functions, aggregations), ETL pipeline testing, Apache DBCP2 connection pooling
+Performance Testing:
+JMeter — Load, Stress, Spike, Throughput; bottleneck diagnosis; root cause analysis; CI/CD pipeline integration
+Reporting & Observability:
+Allure (video capture, step screenshots), ExtentReports (CSS/memory-optimised, Base64 failure logs),
+Cucumber dual-listener event binding, defect leakage tracking
+IDEs & Tooling:
+IntelliJ IDEA, Eclipse, VS Code, JIRA, Confluence, GitHub Copilot
+AI-Augmented Testing:
+RAG pipeline integration (LangChain, Qdrant, OpenAI embeddings), MCP server integration, LLM-based failure
+triage piped to Allure, SLM on-device test generation, Healenium self-healing locators — implementing on
+FHLBNY AHP project (AWS deployment, Q3 2026)
+Process & Methodology:
+Agile/Scrum, SDLC/STLC, Test Planning, Risk-Based Testing, Code Review, Sprint Retrospectives, Global
+Delivery
+PROFESSIONAL EXPERIENCE
+Senior Software Quality Engineer (SDET)
+Prospect Infosystem — Client: Federal Bank of New York | Hyderabad | Feb 2024 – Present
+ Procured and managed procurement of heavy machinery, lab supplies, testing equipment, capital assets, chemicals, and scientific equipment, ensuring timely delivery and quality standards.
+ Negotiated contracts with vendors, ensuring compliance with company policies and procedures, and created purchase orders to facilitate smooth procurement processes.
+ Designed and implemented RFPs and RFIs for procurement of specialized equipment, ensuring alignment with company goals and objectives.
+ Collaborated with import/export teams to ensure compliance with regulations and laws, and worked closely with legal teams to ensure contract negotiations and purchase order creations were compliant with company policies.
+ Implemented AI-augmented testing capabilities, including RAG pipeline integration, MCP server integration, and LLM-based failure analysis, to improve test efficiency and accuracy.
+ Mentored junior engineers on procurement, contract negotiations, and purchase order creations, ensuring knowledge transfer and skill development.
+ Participated in daily Agile/Scrum standups, sprint planning, and retrospectives, collaborating with developers on defect triaging and test case refinement, and reducing defect re-open rate by 25% through precise acceptance criteria alignment.
+Automation Test Engineer
+Sadup Softech Pvt Ltd | Hyderabad | May 2023 – Dec 2023
+ Designed a comprehensive test strategy for MySchoolBot ERP covering functional, regression, smoke, and integration test suites across 6 modules — established the first structured STLC process on the project.
+ Automated critical regression paths using Selenium + Java + TestNG — reduced manual regression effort 40% and compressed the sprint-over-sprint regression cycle from 2 days to 4 hours, directly enabling same-week UAT sign-offs.
+ Validated fee and attendance module submissions against backend DB via multi-table SQL JOINs — ensured end-to-end data integrity for 5,000+ student records per release, catching 3 critical data-mapping defects pre-UAT.
+ Participated in daily Agile/Scrum standups, sprint planning, and retrospectives — collaborated with developers on defect triaging and test case refinement, reducing defect re-open rate by 25% through precise acceptance criteria alignment.
+ Developed module-grouped ExtentReports with step-level screenshots and client-tailored failure summaries across 4 portals — enabled non-technical stakeholders to triage defects independently, saving 2+ hrs/week of QA-to-client clarification effort.
+QA Trainee — Manual Testing & Test Design
+Sadup Softech Pvt Ltd | Hyderabad | Nov 2022 – Apr 2023
+ Designed and maintained 200+ test cases (positive, negative, boundary-value, equivalence partitioning) for KareClouds Healthcare SaaS platform — organised into modular regression and smoke suites subsequently adopted as the baseline library for the automation team.
+ Identified, documented, and lifecycle-tracked 60+ critical defects in JIRA through root cause analysis and reproducible reproduction steps — reduced average developer resolution time by 24 hours and drove a 0% defect escape rate to UAT across two release cycles.
+ Authored multi-table SQL JOIN queries across patient, appointment, billing, and clinical record tables — validated HIPAA-sensitive data handling, confirmed zero PII exposure in API responses, logs, and exports, and produced compliance evidence consumed by the delivery manager.
+ Proactively upskilled from manual QA to Selenium-Java automation within 5 months — self-studied POM, TestNG, and JDBC, securing promotion to Automation Test Engineer ahead of the planned 12-month track.
+KEY PROJECTS
+Core-Prime — Hybrid Test Automation Framework | github.com/sivaramaraju-k/Core-Prime
+Stack: Java 21 · Selenium WebDriver · Selenium Grid · Playwright · Selenium Bi
