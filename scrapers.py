@@ -145,27 +145,27 @@ class ApifyIndeedAdapter(JobScraperAdapter):
 
         query = " ".join(keywords[:3])
         run_input = {
-            "position": query,
+            "query": query,
             "location": location,
-            "country": "US",
-            "maxItems": 20
+            "country": "us",
+            "maxRows": 20
         }
         
         try:
             self.logger.info(f"Starting Indeed Actor for {query} in {location}")
-            run = self.client.actor("apify/indeed-scraper").call(run_input=run_input)
+            run = self.client.actor("MXLpngmVpE8WTESQr").call(run_input=run_input)
             dataset = self.client.dataset(run["defaultDatasetId"])
             
             for item in dataset.iterate_items():
                 job_listing = JobListing(
-                    title=item.get("positionName", ""),
-                    company=item.get("company", ""),
-                    description=item.get("description", ""),
-                    application_url=item.get("url", ""),
+                    title=item.get("positionName", item.get("jobTitle", item.get("title", ""))),
+                    company=item.get("company", item.get("companyName", "")),
+                    description=item.get("description", item.get("jobDescription", "")),
+                    application_url=item.get("url", item.get("jobUrl", "")),
                     location=item.get("location", ""),
-                    salary_range=item.get("salary", ""),
+                    salary_range=item.get("salary", item.get("salaryRange", "")),
                     source="Indeed",
-                    posted_date=item.get("postedAt"),
+                    posted_date=item.get("postedAt", item.get("datePosted", "")),
                     raw_data=item
                 )
                 jobs.append(job_listing)
