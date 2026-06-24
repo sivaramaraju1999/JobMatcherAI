@@ -193,8 +193,13 @@ Respond in JSON format ONLY:
             return 0.0, list(job_kw), list(resume_kw)
         matching = list(resume_kw.intersection(job_kw))
         missing = list(job_kw.difference(resume_kw))
-        score = (len(matching) / len(job_kw)) * 100 if job_kw else 0.0
-        return min(max(score, 0), 100), missing, matching
+        
+        # Better fallback scoring: 15 matching terms = 100%
+        # This avoids dividing by the total unique words in the job description (which is usually huge)
+        expected_matches = 15
+        score = min((len(matching) / expected_matches) * 100, 100.0) if job_kw else 0.0
+        
+        return min(max(score, 0), 100), missing[:20], matching
 
 
 

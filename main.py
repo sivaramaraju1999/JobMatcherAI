@@ -149,7 +149,9 @@ class JobMatcherAI:
                     location = self.config.TARGET_LOCATIONS[0] if self.config.TARGET_LOCATIONS else "any"
 
                     # Search for jobs
-                    jobs = self.scraper.search_all([role], location)
+                    techs = " ".join(self.keywords.get('technologies', [])[:2])
+                    search_query = f"{role} {techs}".strip()
+                    jobs = self.scraper.search_all([search_query], location)
                     logger.info(f"Found {len(jobs)} jobs for {role}")
 
                     # Process each job
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         sorted_results = sorted(results, key=lambda x: x['match_percentage'], reverse=True)
         for i, result in enumerate(sorted_results, 1):
             company = result.get('company') or "Unknown Company"
-            title = result.get('job_title') or "Unknown Role"
+            title = result.get('position') or "Unknown Role"
             link = result.get('apply_link') or "No Link"
             line = f"{i}. {title} at {company} - {result['match_percentage']:.1f}% Match\n   Link: {link}\n"
             print(line.strip())
