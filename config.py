@@ -1,87 +1,69 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
+
 
 # Load environment variables from .env file in the base directory
 BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR / '.env')
 
 class Config:
-    # Keywords for job matching (can be overridden by env vars or config file)
+    BASE_DIR = BASE_DIR
+    # Hyper-focused keywords to eliminate non-QA and hardware role bleeding
     DEFAULT_KEYWORDS = {
         'roles': [
-            'Software Engineer',
-            'Senior Software Engineer',
-            'Lead Software Engineer',
-            'Principal Engineer',
-            'Architect',
-            'Tech Lead',
-            'Engineering Manager',
-            'Full Stack Developer',
-            'Backend Developer',
-            'Frontend Developer',
-            'DevOps Engineer',
-            'Site Reliability Engineer',
-            'Data Engineer',
-            'Machine Learning Engineer',
-            'AI Engineer',
-            'Cloud Engineer',
-            'Solutions Architect',
-            'Technical Architect'
+            'Senior SDET',
+            'Software Development Engineer in Test',
+            'Software Quality Engineer',
+            'Test Automation Engineer',
+            'QA Framework Architect',
+            'Automation Test Engineer',
+            'QA Lead',
+            'Automation Engineer'
         ],
         'technologies': [
-            'Python',
-            'Java',
-            'JavaScript',
-            'TypeScript',
-            'React',
-            'Node.js',
-            'AWS',
-            'Azure',
-            'GCP',
-            'Docker',
-            'Kubernetes',
-            'Microservices',
-            'REST API',
-            'GraphQL',
-            'SQL',
-            'NoSQL',
-            'MongoDB',
-            'PostgreSQL',
-            'MySQL',
-            'Redis',
-            'Elasticsearch',
-            'Spring Boot',
-            '.NET',
-            'C#',
-            'Go',
-            'Rust',
-            'Terraform',
-            'Ansible',
-            'Jenkins',
-            'GitLab CI',
-            'GitHub Actions',
-            'Prometheus',
-            'Grafana',
-            'ELK Stack'
+            'Java', 
+            'Java 21',
+            'Python', 
+            'SQL', 
+            'NoSQL', 
+            'REST API', 
+            'Jenkins', 
+            'GitHub Actions', 
+            'GitLab CI', 
+            'Docker', 
+            'AWS', 
+            'MySQL', 
+            'PostgreSQL', 
+            'Oracle', 
+            'Snowflake', 
+            'MongoDB', 
+            'Redis', 
+            'DynamoDB', 
+            'Selenium', 
+            'Selenium WebDriver',
+            'Playwright', 
+            'RestAssured', 
+            'JMeter', 
+            'Cucumber BDD', 
+            'TestNG',
+            'Healenium',
+            'Allure'
         ],
         'experience_levels': [
             'Senior',
             'Lead',
-            'Principal',
             'Architect',
-            'Manager',
-            'Director',
-            'VP',
-            'Head of',
-            'Staff',
-            'Distinguished'
+            'Mid-Senior'
         ]
     }
 
-    # Target locations
+    # Strict target regional constraints matching your search parameters
     TARGET_LOCATIONS = [
         'Hyderabad',
+        'Secunderabad',
+        'HITEC City',
+        'Gachibowli',
         'Remote',
         'Remote-India',
         'Work from Home',
@@ -89,94 +71,41 @@ class Config:
         'Hybrid'
     ]
 
-    # Target companies (Fortune 500, MAANG/FAANG, etc.)
+    # Cleaned target enterprise clusters (Duplicates removed)
     TARGET_COMPANIES = [
-        # MAANG/FAANG
-        'Meta',
-        'Apple',
-        'Amazon',
-        'Netflix',
-        'Google',
-        'Microsoft',
-
-        # Other Fortune 500 tech companies
-        'ServiceNow',
-        'Salesforce',
-        'Oracle',
-        'IBM',
-        'Intel',
-        'Cisco',
-        'Adobe',
-        'NVIDIA',
-        'AMD',
-        'Qualcomm',
-        'IBM',  # Duplicate, but keeping as in original
-        'Accenture',
-        'TCS',
-        'Infosys',
-        'Wipro',
-        'HCL Tech',
-        'Tech Mahindra',
-        'LTI',
-        'Mindtree',
-        'Persistent Systems',
-        'Zensar',
-        'Cyient',
-        'L&T Infotech',
-        'Mphasis',
-        'Hexaware',
-        'Larsen & Toubro',
-        'Honeywell',
-        'GE',
-        'Siemens',
-        'Bosch',
-        'Philips',
-        'SAP',
-        'VMware',
-        'Citrix',
-        'PayPal',
-        'Stripe',
-        'Uber',
-        'Lyft',
-        'Airbnb',
-        'Spotify',
-        'Twitter/X',
-        'LinkedIn',
-        'PayPal',  # Duplicate
-        'Square',
-        'Shopify',
-        'Instacart',
-        'DoorDash',
-        'Quora',
-        'Reddit',
-        'Pinterest',
-        'Snapchat',
-        'TikTok',
-        'ByteDance',
-        'Quora',   # Duplicate
-        'Medium',
-        'Dropbox'
+        # MAANG / Tier 1 Engineering Portals
+        'Meta', 'Apple', 'Amazon', 'Netflix', 'Google', 'Microsoft',
+        
+        # Enterprise Platforms & High-Value GCC Hubs
+        'ServiceNow', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Cisco', 
+        'Adobe', 'NVIDIA', 'AMD', 'Qualcomm', 'SAP', 'VMware', 'Citrix', 
+        'PayPal', 'Stripe', 'Uber', 'Lyft', 'Airbnb', 'Spotify', 'Twitter/X', 
+        'LinkedIn', 'Square', 'Shopify', 'Instacart', 'DoorDash', 'Reddit', 
+        'Pinterest', 'Snapchat', 'TikTok', 'ByteDance', 'Medium', 'Dropbox',
+        
+        # Large Scale Tech Integrators
+        'Accenture', 'TCS', 'Infosys', 'Wipro', 'HCL Tech', 'Tech Mahindra', 
+        'Persistent Systems', 'Zensar', 'Cyient', 'Mphasis', 'Hexaware', 
+        'Honeywell', 'GE', 'Siemens', 'Bosch', 'Philips'
     ]
 
-    # Experience years for salary bargaining
-    TARGET_EXPERIENCE_YEARS = int(os.getenv('TARGET_EXPERIENCE_YEARS', '8'))
+    # Dynamically falls back to your actual 3+ years experience summary profile
+    TARGET_EXPERIENCE_YEARS = int(os.getenv('TARGET_EXPERIENCE_YEARS', '3'))
 
-    # Match thresholds (no longer strictly used for logic, but good for reference)
-    INITIAL_MATCH_THRESHOLD = int(os.getenv('INITIAL_MATCH_THRESHOLD', '60'))  # 60-70% initial match
+    # Match thresholds for initial gatekeeper filter loops
+    INITIAL_MATCH_THRESHOLD = int(os.getenv('INITIAL_MATCH_THRESHOLD', '60'))
 
-    # File paths
-    BASE_DIR = Path(__file__).parent
+    # Directory Structure Mappings
     OUTPUT_DIR = BASE_DIR / "outputs"
     LOGS_DIR = BASE_DIR / "logs"
     CACHE_DIR = BASE_DIR / "cache"
 
-    # Create directories if they don't exist
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    # Synchronize physical workspace folders
+    def __init__(self):
+        self.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        self.CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Resume configuration
+    # Resume File Address Routing
     BASE_RESUME_PATH = BASE_DIR / "resumes" / "Sivaramaraju_Kalidindi_Resume_2026.pdf"
-    BASE_RESUME_TEXT = ""  # Will be loaded from file from file
-
-# Create a .env.example
+    BASE_RESUME_TEXT = ""  # Populated dynamically by PdfReader engine
